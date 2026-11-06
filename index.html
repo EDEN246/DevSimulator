@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>محاكي مسار المطور — نسخة شخصية</title>
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light;--bg:#fff1d6;--card:#fffdf8;--ink:#2b2d42;--mut:#6b6f85;--y:#ffd166;--g:#06d6a0;--r:#ef476f;--b:#4cc9f0;--p:#b388ff;--sh:4px 4px 0 var(--ink)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#1b1930;--card:#2a2745;--ink:#f4f1ff;--mut:#aaa7c6;--sh:4px 4px 0 #0b0a16}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#1b1930;--card:#2a2745;--ink:#f4f1ff;--mut:#aaa7c6;--sh:4px 4px 0 #0b0a16}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Cairo,Tahoma,system-ui,sans-serif;font-weight:500;line-height:1.5;min-height:100vh}
+.wrap{max-width:980px;margin:0 auto;padding:14px}
+h1{font-size:1.7rem;font-weight:900;margin:.2rem 0}
+h2{font-size:1.05rem;font-weight:900;margin:0 0 10px}
+.card{background:var(--card);border:3px solid var(--ink);border-radius:20px;box-shadow:var(--sh);padding:14px}
+.grid{display:grid;gap:14px}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g2{grid-template-columns:1fr 1fr}
+@media(max-width:720px){.g4{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}}
+.badge{display:inline-block;border:3px solid var(--ink);border-radius:999px;padding:2px 12px;font-weight:900;background:var(--y);color:#2b2d42}
+.stat{text-align:center}.stat small{color:var(--mut);display:block}.stat b{font-size:1.4rem;font-weight:900}
+.pos{color:#05a57a}.neg{color:var(--r)}
+.bar{height:16px;border:3px solid var(--ink);border-radius:999px;overflow:hidden;background:var(--bg)}
+.bar i{display:block;height:100%;transition:width .3s}
+button{font:inherit;font-weight:900;color:#2b2d42;background:var(--y);border:3px solid var(--ink);border-radius:14px;padding:8px 14px;box-shadow:3px 3px 0 var(--ink);cursor:pointer}
+button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--p);outline-offset:2px}
+button:disabled{opacity:.45;cursor:not-allowed}
+.bg{background:var(--g)}.br{background:var(--r);color:#fff}.bb{background:var(--b)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row>*{flex:1}
+input[type=range]{width:100%;accent-color:var(--r)}
+input[type=date],input[type=number],select{font:inherit;font-weight:700;padding:8px;border:3px solid var(--ink);border-radius:12px;background:var(--card);color:var(--ink);width:100%}
+.trk{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.trk button{text-align:center;background:var(--card);color:var(--ink)}
+.trk button.on{background:var(--b);color:#2b2d42}
+.trk .bar{height:10px;margin-top:6px}.trk .bar i{background:var(--g)}
+.log{margin:0;padding:0;list-style:none;max-height:210px;overflow-y:auto}
+.log li{padding:6px 0;border-bottom:2px dashed var(--mut)}
+.ov{position:fixed;inset:0;background:rgba(20,18,40,.6);display:flex;align-items:center;justify-content:center;padding:16px;z-index:9}
+.ov[hidden]{display:none}
+.box{max-width:560px;width:100%;max-height:90vh;overflow-y:auto}
+.box .row{margin-top:10px}
+#setup{max-width:480px;margin:8vh auto;text-align:center}
+svg{width:100%;height:80px;display:block}
+textarea{font:inherit;width:100%;border:3px solid var(--ink);border-radius:12px;padding:8px;background:var(--card);color:var(--ink)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<div class="wrap">
+<section id="setup" class="card">
+<div style="font-size:3rem">💻</div>
+<h1>محاكي مسار المطور</h1>
+<p>نسخة شخصية: تبدأ بلا وظيفة وبلا مهارة، وتعيش على الفريلانس أو على وظيفة عن بعد. مصاريفك كلها للبرمجة: جهاز وأدوات واشتراكات.</p>
+<label>تاريخ البداية<input type="date" id="sd"></label>
+<div class="row" style="margin-top:12px"><button class="bg" id="go">ابدأ الرحلة</button></div>
+<small id="vr2" style="color:var(--mut)"></small>
+</section>
+
+<section id="game" hidden>
+<div class="top">
+<h1>💻 محاكي مسار المطور</h1>
+<div class="row"><span class="badge" id="dt"></span> <span class="badge" id="ttl" style="background:var(--p)"></span> <span class="badge" id="vr" style="background:var(--b)"></span> <button id="st" aria-label="الإعدادات" style="padding:2px 10px;flex:0">⚙️</button></div>
+</div>
+<div class="grid g4" style="margin:12px 0">
+<div class="card stat"><small>الرصيد</small><b id="bal"></b></div>
+<div class="card stat"><small>دخل آخر يوم</small><b id="inc" class="pos"></b></div>
+<div class="card stat"><small>المصاريف اليومية</small><b id="exp" class="neg"></b><br><button id="xb" style="margin-top:6px;padding:2px 10px">🧾 تفصيل وتحكم</button></div>
+<div class="card stat"><small>المهارة التقنية</small><b id="lvl"></b></div>
+</div>
+<div class="grid g2">
+<div class="card">
+<h2>⚡ الطاقة والاحتراق</h2>
+<small>الطاقة</small><div class="bar"><i id="en" style="background:var(--g)"></i></div>
+<small>الاحتراق الوظيفي</small><div class="bar"><i id="bu" style="background:var(--r)"></i></div>
+<p id="tip" style="margin:8px 0 0;color:var(--mut)"></p>
+</div>
+<div class="card">
+<h2>⏱️ ساعات العمل التقني: <span id="hv"></span></h2>
+<input type="range" id="hr" min="0" max="16" step="1" aria-label="ساعات العمل اليومية">
+<select id="md" aria-label="نمط اليوم"><option value="learn">📚 أتعلم (مهارة أسرع بلا دخل)</option><option value="work">💼 أشتغل على مشروعي (دخل ومهارة أبطأ)</option></select>
+<div class="row" style="margin-top:10px"><button class="bg" data-d="1">اليوم التالي</button><button class="bb" data-d="7">+7 أيام</button><button class="bb" data-d="30">+30 يوماً</button></div>
+</div>
+</div>
+<div class="card" style="margin-top:14px"><h2>🧭 المجالات (اضغط للتبديل)</h2><div class="trk" id="trk"></div></div>
+<div class="card" id="pjc" style="margin-top:14px" hidden></div>
+<div class="grid g2" style="margin-top:14px">
+<div class="card"><h2>🏢 نوع العمل</h2><div class="row" id="jobs"></div><p id="jtip" style="margin:8px 0 0;color:var(--mut)"></p><button class="br" id="pj" style="width:100%;margin-top:6px">🔮 الرؤية المستقبلية</button></div>
+<div class="card"><h2>📜 السجل</h2><ul class="log" id="log"></ul></div>
+</div>
+<div class="row" style="margin-top:14px"><button id="nw" style="flex:0">لعبة جديدة</button></div>
+</section>
+</div>
+<div class="ov" id="ov" hidden><div class="card box" id="bx" role="dialog" aria-modal="true"></div></div>
+
+<script>
+const K='devlife.personal.v2',$=i=>document.getElementById(i),VER='2.0.0';
+const TR={web:{n:'تطوير الويب',i:'🌐',l:1},mobile:{n:'تطبيقات الجوال',i:'📱',l:.9},sec:{n:'الأمن السيبراني',i:'🛡️',l:.7},ai:{n:'الذكاء الاصطناعي',i:'🤖',l:.6},game:{n:'تطوير الألعاب',i:'🎮',l:.8}};
+const TT=[[0,'مبتدئ يبحث عن فرصة'],[2,'متدرب'],[4,'مستقل مبتدئ'],[7,'مطور'],[11,'مطور أول'],[16,'مهندس برمجيات'],[22,'معماري برمجيات / مؤسس']];
+let s=null,busy=false;
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const BASE=1.5;
+const EXP=[
+{k:'lap',n:'💻 الجهاز (لابتوب): يرفع كفاءتك',o:[['قديم',0],['متوسط',1.5],['قوي',3.5]]},
+{k:'tools',n:'🧰 الأدوات والبرامج: ترفع دخلك',o:[['مجانية',0],['أساسية',1],['احترافية',2.5]]},
+{k:'sub',n:'📚 اشتراكات التعلم: تسرّع مهارتك',o:[['بدون',0],['منصة تعلم',1.5],['دورات متقدمة',4]]}];
+const FX={lap:[1,1.12,1.25],tools:[1,1.06,1.14],sub:[1,1.1,1.2]};
+const SEL0=()=>({lap:0,tools:0,sub:0});
+const tier=(x,k)=>{const v=x.sel[k];if(v!=='c')return v;const e=EXP.find(e=>e.k==k),a=x.cus[k]||0;return Math.max(0,e.o.filter(o=>o[1]<=a).length-1)};
+const price=(x,k)=>{const v=x.sel[k];return v==='c'?(x.cus[k]||0):EXP.find(e=>e.k==k).o[v][1]};
+const dailyEx=x=>BASE+EXP.reduce((a,e)=>a+price(x,e.k),0)+x.ex;
+const PJ=[
+{n:'تعديلات بسيطة على موقع',t:'web',L:0,hrs:8,dl:10,pay:16},
+{n:'إصلاح شاشة في تطبيق',t:'mobile',L:0,hrs:10,dl:12,pay:20},
+{n:'موقع تعريفي لمطعم',t:'web',L:1,hrs:20,dl:14,pay:60},
+{n:'صفحة هبوط لشركة ناشئة',t:'web',L:2,hrs:30,dl:14,pay:110},
+{n:'تطبيق قائمة مهام',t:'mobile',L:3,hrs:40,dl:20,pay:200},
+{n:'فحص أمني لمتجر صغير',t:'sec',L:3,hrs:35,dl:18,pay:230},
+{n:'لعبة صغيرة لمعرض',t:'game',L:3,hrs:45,dl:25,pay:220},
+{n:'بوت دعم عملاء ذكي',t:'ai',L:4,hrs:50,dl:25,pay:380},
+{n:'لوحة تحكم لشركة متوسطة',t:'web',L:6,hrs:80,dl:35,pay:640},
+{n:'تطبيق توصيل كامل',t:'mobile',L:8,hrs:120,dl:50,pay:1200},
+{n:'نظام تحليل بيانات',t:'ai',L:9,hrs:130,dl:50,pay:1500},
+{n:'اختبار اختراق لمؤسسة مالية',t:'sec',L:10,hrs:140,dl:55,pay:2000}];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),lvl=p=>Math.floor(Math.sqrt(p/25)),rnd=(a,b)=>Math.round(a+Math.random()*(b-a));
+const money=n=>'<span dir="ltr">'+(n<0?'-':'')+'$'+(Math.abs(n)<10?Math.abs(n).toFixed(1):Math.abs(Math.round(n)).toLocaleString('en-US'))+'</span>';
+const maxL=x=>Math.max(...Object.values(x.pts).map(lvl));
+const remoteSal=x=>(14+maxL(x)*2.5)*FX.tools[tier(x,'tools')];
+const title=l=>{let t='';TT.forEach(x=>{if(l>=x[0])t=x[1]});return t};
+const mkpj=(j,m)=>({n:j.n,t:j.t,hrs:j.hrs,dl:j.dl,pay:Math.round(j.pay*m),p:0,paid:0});
+const save=()=>{try{localStorage.setItem(K,JSON.stringify(s))}catch(e){}};
+const load=()=>{try{const v=localStorage.getItem(K);return v?JSON.parse(v):null}catch(e){return null}};
+const fresh=t=>({t,day:0,bal:80,pts:{web:0,mobile:0,sec:0,ai:0,game:0},trk:'web',h:4,mode:'learn',job:'free',en:80,bu:10,ex:0,eq:1,up:0,last:{inc:0,ex:BASE},log:['🌅 بدأت رحلتك: مبتدئ بلا وظيفة وبحلم كبير'],sel:SEL0(),cus:{},pj:null,pe:null,rem:0,b0:0,n0:0,ver:VER});
+const norm=x=>{const d=fresh(+x.t||Date.now()),o=Object.assign({},d,x);
+ o.pts=Object.assign({},d.pts,x.pts||{});o.sel=Object.assign(SEL0(),x.sel||{});o.cus=x.cus||{};o.last=Object.assign({inc:0,ex:BASE},x.last||{});
+ ['t','day','bal','h','en','bu','ex','eq','up','rem','b0','n0'].forEach(k=>{if(!isFinite(o[k]))o[k]=d[k]});
+ Object.keys(o.pts).forEach(k=>{if(!isFinite(o.pts[k]))o.pts[k]=0});
+ EXP.forEach(e=>{const v=o.sel[e.k];if(v!=='c'&&!(v>=0&&v<e.o.length))o.sel[e.k]=0;o.cus[e.k]=clamp(+o.cus[e.k]||0,0,500)});
+ if(!TR[o.trk])o.trk='web';if(o.job!='remote')o.job='free';if(o.mode!='work'||o.job=='remote')o.mode='learn';
+ const p=o.pj;if(p){if(TR[p.t]&&isFinite(p.hrs)&&isFinite(p.p)&&isFinite(p.dl)&&isFinite(p.pay)){p.paid=+p.paid||0}else o.pj=null}
+ const e=o.pe;if(e&&!(e.k=='e'&&EV[e.i]||e.k=='p'&&PJ[e.i]&&isFinite(e.m)))o.pe=null;
+ if(!Array.isArray(o.log))o.log=[];o.ver=VER;return o};
+const addLog=t=>{s.log.unshift(t);s.log.length=Math.min(s.log.length,14)};
+
+function tick(x,sim){
+ const m=[],T=TR[x.trk],L0=lvl(x.pts[x.trk]),rem=x.job=='remote',ld=(rem?7:0)+x.h;
+ const ef=Math.max(.25,(.4+.6*x.en/100)*(1-x.bu/200))*x.eq*FX.lap[tier(x,'lap')];
+ const tm=FX.tools[tier(x,'tools')],v=sim?1:.8+Math.random()*.4;
+ let inc=rem?remoteSal(x):0;
+ if(!rem&&x.mode=='work'&&x.pj){const a=Math.min(x.h*ef*v,x.pj.hrs-x.pj.p),d=a/x.pj.hrs*x.pj.pay*.6*tm;x.pj.p+=a;x.pj.paid+=d;inc+=d}
+ const g=(x.h*T.l*ef*(x.mode=='learn'||rem?1:.25)+(rem?3*ef:0))*FX.sub[tier(x,'sub')];
+ const ex=dailyEx(x);
+ x.pts[x.trk]+=g;x.bal+=inc-ex;x.day++;x.t+=864e5;
+ x.en=clamp(x.en+20-ld*1.5,0,100);
+ x.bu=clamp(x.bu+(x.en<30?4:-2)+(x.h==0?-3:0)+(ld>14?3:0),0,100);
+ x.last={inc,ex};
+ if(x.pj){x.pj.dl--;
+  if(x.pj.p>=x.pj.hrs-1e-9){const b=Math.round(x.pj.pay*.4*tm);x.bal+=b;x.last.inc+=b;x.pts[x.pj.t]+=x.pj.hrs*.25;m.push('📦 سلّمت '+x.pj.n+' وقبضت دفعة التسليم '+b+'$ (المجموع '+Math.round(x.pj.paid+b)+'$)');x.pj=null}
+  else if(x.pj.dl<=0){m.push('⌛ فاتك موعد '+x.pj.n+': قبضت '+Math.round(x.pj.paid)+'$ ولم تقبض دفعة التسليم');x.pj=null}}
+ if(lvl(x.pts[x.trk])>L0)m.push('⬆️ ارتفع مستواك في '+T.n+' إلى '+(L0+1));
+ if(x.bu>=100){x.bal-=ex*6;x.day+=6;x.t+=6*864e5;if(x.pj)x.pj.dl-=6;x.bu=40;x.en=60;m.push('🔥 احتراق وظيفي! أُجبرت على أسبوع راحة وتكبدت مصاريفه')}
+ if(!sim&&x.bal<-100){x.bal+=120;m.push('🤝 ساعدك أحد المقربين بـ 120$ لتجاوز الأزمة')}
+ return m}
+
+const EV=[
+{w:x=>lvl(x.pts[x.trk])>=1,t:'🎉 عميل راضٍ',d:'أعجبه عملك وأرسل لك مكافأة إضافية.',o:[['رائع!',x=>{const v=rnd(20,70);x.bal+=v;return '🎉 استلمت مكافأة '+v+'$'}]]},
+{w:()=>1,t:'💥 انهار اللابتوب',d:'شاشة سوداء فجأة، والمشروع على الجهاز!',o:[['أصلحه (80$)',x=>{x.bal-=80;return '🔧 دفعت 80$ لإصلاح الجهاز'}],['اعمل من الجوال (-20 طاقة)',x=>{x.en=clamp(x.en-20,0,100);return '📱 تدبرت الأمر من الجوال وتعبت'}]]},
+{w:()=>1,t:'🔁 تجديد اشتراك تلقائي',d:'منصة تعلم ستسحب 15$ من حسابك. تريد الاستمرار؟',o:[['استمر (+15 نقطة مهارة)',x=>{x.bal-=15;x.pts[x.trk]+=15;return '🔁 دفعت 15$ وتعلمت من المحتوى'}],['ألغِ الاشتراك',x=>'✂️ ألغيت الاشتراك قبل السحب ووفرت مالك']]},
+{w:x=>lvl(x.pts[x.trk])>=2,t:'💼 عرض عمل مفاجئ',d:'عميل يحتاج مشروعاً سريعاً خلال 3 أيام مقابل 120$.',o:[['اقبل (-25 طاقة)',x=>{x.bal+=120;x.en=clamp(x.en-25,0,100);return '💼 أنجزت العرض وربحت 120$'}],['تجاهل',x=>'🙅 تجاهلت العرض بلا مشكلة']]},
+{w:()=>1,t:'🐱 القطة والكيبورد',d:'قطتك مشت على الكيبورد وحذفت جزءاً من مشروعك!',o:[['استرجع من نسخة احتياطية (10$)',x=>{x.bal-=10;return '💾 استرجعت عملك بـ 10$'}],['أعد الكتابة (-12 نقطة)',x=>{x.pts[x.trk]=Math.max(0,x.pts[x.trk]-12);return '😿 أعدت كتابة الكود بنفسك'}]]},
+{w:()=>1,t:'📶 جارك والواي فاي',d:'جارك يطلب منك تصليح الراوتر، فأنت المبرمج!',o:[['ساعده (+8$، -5 طاقة)',x=>{x.bal+=8;x.en=clamp(x.en-5,0,100);return '📶 أصلحت الراوتر وأعطاك 8$'}],['تجاهل',x=>'😶 مثّلت أنك لم تسمع']]},
+{w:x=>x.bal>150,t:'🎤 دعوة لمؤتمر تقني',d:'تذكرة المؤتمر 60$، فرصة للتعلم والتعارف.',o:[['احضر (+40 نقطة، +10 طاقة)',x=>{x.bal-=60;x.pts[x.trk]+=40;x.en=clamp(x.en+10,0,100);return '🎤 حضرت المؤتمر وتعلمت الكثير'}],['تجاهل',x=>'🏠 فضلت البقاء في المنزل']]},
+{w:x=>x.bal>500&&x.up<3,t:'💻 ترقية الجهاز',d:'لابتوب أقوى بسعر 350$: كفاءة +10% لكن تكاليف صيانة أعلى.',o:[['اشترِ',x=>{x.bal-=350;x.eq+=.1;x.ex+=.4;x.up++;return '💻 اشتريت جهازاً أقوى'}],['تجاهل',x=>'🧠 قررت التأجيل']]},
+{w:()=>1,t:'🐛 الخطأ الغامض',d:'الـ bug الذي أتعبك أسبوعاً اختفى من نفسه. لا تسأل كيف.',o:[['لا أسأل (+10 نقاط)',x=>{x.pts[x.trk]+=10;return '🐛 اختفى الخطأ وتعلمت درساً غريباً'}]]},
+{w:()=>1,t:'⚡ فاتورة كهرباء مرتفعة',d:'ساعات الجهاز الطويلة رفعت الفاتورة.',o:[['ادفع (20$)',x=>{x.bal-=20;return '⚡ دفعت فاتورة الكهرباء 20$'}]]},
+{w:x=>x.bal>80,t:'🤝 قريب يطلب سلفة',d:'يطلب 30$ ووعد بإعادتها قريباً.',o:[['أقرضه',x=>{x.bal-=30;return '🤝 أقرضت قريبك 30$'}],['اعتذر بلطف',x=>'🙂 اعتذرت بلطف']]}
+];
+function offerOf(p){const j=PJ[p.i],pay=Math.round(j.pay*p.m);
+ return{t:'📦 مشروع صغير',d:'«'+j.n+'» في مجال '+TR[j.t].n+'. المطلوب '+j.hrs+' ساعة بنمط العمل على المشروع خلال '+j.dl+' يوماً، والأجر '+pay+'$: 60% تُدفع تدريجياً مع تقدمك، و40% عند التسليم.',o:[['اقبل المشروع',x=>{x.pj=mkpj(j,p.m);return '📦 قبلت مشروع '+j.n}],['تجاهل',()=>'🙅 تجاهلت المشروع']]}}
+const evOf=p=>p.k=='p'?offerOf(p):EV[p.i];
+function pickOffer(){const l=t=>lvl(s.pts[t]),ix=PJ.map((p,i)=>i);let a=ix.filter(i=>l(PJ[i].t)>=PJ[i].L&&l(PJ[i].t)<=PJ[i].L+5);if(!a.length)a=ix.filter(i=>l(PJ[i].t)>=PJ[i].L);return a.length?{k:'p',i:a[rnd(0,a.length-1)],m:rnd(85,115)/100}:null}
+function showEv(pe){
+ const e=evOf(pe);busy=true;
+ $('bx').innerHTML='<h2>'+e.t+'</h2><p>'+e.d+'</p><div class="row" id="eo"></div>';
+ e.o.forEach(o=>{const b=document.createElement('button');b.textContent=o[0];b.onclick=()=>{s.pe=null;addLog(o[1](s));busy=false;$('ov').hidden=true;const r=s.rem;s.rem=0;render();save();r>0?step(r):fin()};$('eo').appendChild(b)});
+ $('ov').hidden=false}
+function step(n){
+ for(let i=0;i<n;i++){
+  tick(s).forEach(addLog);
+  let pe=null;
+  if(s.job=='free'&&!s.pj&&Math.random()<.15)pe=pickOffer();
+  if(!pe&&Math.random()<.12){const a=EV.map((e,i)=>i).filter(i=>EV[i].w(s));pe={k:'e',i:a[rnd(0,a.length-1)]}}
+  if(pe){s.pe=pe;s.rem=n-i-1;render();save();return showEv(pe)}
+ }
+ fin()}
+function fin(){const d=s.bal-s.b0;s.rem=0;addLog('📅 '+s.n0+' يوم: '+(d>=0?'+':'-')+Math.abs(Math.round(d))+'$');render();save()}
+function adv(n){if(busy)return;s.b0=s.bal;s.n0=n;step(n)}
+
+function render(){
+ const L=lvl(s.pts[s.trk]),T=TR[s.trk],rem=s.job=='remote',ok=maxL(s)>=5||rem,ld=(rem?7:0)+s.h;
+ $('dt').textContent=new Date(s.t).toLocaleDateString('ar-EG-u-nu-latn',{weekday:'long',year:'numeric',month:'long',day:'numeric',timeZone:'UTC'});
+ $('ttl').textContent=title(L);
+ $('bal').innerHTML=money(s.bal);$('bal').className=s.bal<0?'neg':'';
+ $('inc').innerHTML=money(s.last.inc);$('exp').innerHTML=money(s.last.ex);
+ $('lvl').textContent=T.n+' ('+L+')';
+ $('en').style.width=s.en+'%';$('bu').style.width=s.bu+'%';
+ $('hr').value=s.h;$('hv').textContent=s.h;$('md').value=s.mode;$('md').style.display=rem?'none':'';
+ $('tip').textContent=s.bu>70?'⚠️ أنت قريب من الاحتراق. قلل الساعات!':ld>14?'😓 حمل يومي ثقيل ('+ld+' ساعة بالعمل الكلي).':'✅ حملك اليومي '+ld+' ساعة، متوازن.';
+ $('trk').innerHTML=Object.keys(TR).map(k=>{const p=s.pts[k],l=lvl(p),c=l*l*25,n=(l+1)*(l+1)*25;return '<button data-t="'+k+'" class="'+(k==s.trk?'on':'')+'">'+TR[k].i+' '+TR[k].n+'<br><small>مستوى '+l+'</small><div class="bar"><i style="width:'+Math.round((p-c)/(n-c)*100)+'%"></i></div></button>'}).join('');
+ $('jobs').innerHTML=[['free','🧑‍💻 فريلانس'],['remote',ok?'🏠 عن بعد ('+Math.round(remoteSal(s))+'$ ثابتة يومياً)':'🔒 عن بعد (مستوى 5 في أي مجال)']].map(j=>'<button data-j="'+j[0]+'" '+(j[0]=='remote'&&!ok?'disabled ':'')+(s.job==j[0]?'class="bg"':'')+'>'+j[1]+'</button>').join('');
+ $('jtip').textContent=rem?'راتب ثابت كل يوم، يرتفع مع أعلى مستوى لديك. ساعاتك الإضافية تذهب للتعلم.':s.pj?'':'لا يوجد مشروع الآن. تصلك العروض عشوائياً، وكلما ارتفع مستواك ظهرت مشاريع أفضل.';
+ $('log').innerHTML=s.log.map(x=>'<li>'+esc(x)+'</li>').join('');
+ $('vr').textContent='v'+VER;
+ const pc=$('pjc');pc.hidden=!s.pj;
+ if(s.pj){const p=s.pj;pc.innerHTML='<h2>📦 '+esc(p.n)+'</h2><div class="bar"><i style="width:'+Math.min(100,Math.round(p.p/p.hrs*100))+'%;background:var(--b)"></i></div><small>التقدم '+Math.round(p.p)+'/'+p.hrs+' ساعة | متبقي '+p.dl+' يوم | قبضت '+Math.round(p.paid)+'$ من '+p.pay+'$'+(s.mode!='work'?' | ⚠️ فعّل نمط العمل على المشروع':'')+'</small><div class="row"><button class="br" id="pa">تخلَّ عن المشروع</button></div>'}}
+
+function proj(){
+ const c=JSON.parse(JSON.stringify(s));c.pe=null;c.h=+$('ph').value;c.job=$('pjb').value;c.mode=c.job=='remote'?'learn':$('pm').value;$('pv').textContent=c.h;
+ const pts=[],mk={};
+ for(let i=1;i<=365;i++){
+  if(c.job=='free'&&!c.pj&&i%7==0){const a=PJ.filter(p=>lvl(c.pts[p.t])>=p.L&&lvl(c.pts[p.t])<=p.L+5);if(a.length)c.pj=mkpj(a[a.length-1],1)}
+  tick(c,1);if(i%5==0)pts.push(c.bal);if(i==30||i==90||i==365)mk[i]={b:c.bal,n:c.last.inc-c.last.ex,L:maxL(c),bu:c.bu}}
+ const lo=Math.min(...pts),hi=Math.max(...pts),sp=hi==lo?1:hi-lo;
+ const pl=pts.map((v,i)=>(i/(pts.length-1)*300).toFixed(1)+','+(76-(v-lo)/sp*70).toFixed(1)).join(' ');
+ $('pr').innerHTML='<svg viewBox="0 0 300 80" preserveAspectRatio="none"><polyline points="'+pl+'" fill="none" stroke="#ef476f" stroke-width="3"/></svg>'+
+ [30,90,365].map(d=>'<div class="card" style="margin-top:10px"><b>'+(d==30?'بعد شهر':d==90?'بعد 3 أشهر':'بعد سنة')+'</b><br>الرصيد: '+money(mk[d].b)+' | صافي آخر يوم: '+money(mk[d].n)+'<br>أعلى مستوى: '+mk[d].L+' — '+title(mk[d].L)+(mk[d].bu>70?'<br><span class="neg">⚠️ خطر احتراق</span>':'')+'</div>').join('')}
+function openProj(){
+ const ok=maxL(s)>=5||s.job=='remote';
+ $('bx').innerHTML='<h2>🔮 الرؤية المستقبلية</h2><small>توقع تقريبي بلا أحداث عشوائية، ويفترض وصول مشروع تقريباً كل أسبوع في الفريلانس. جرّب خططاً مختلفة:</small><p>الساعات: <b id="pv"></b></p><input type="range" id="ph" min="0" max="16" value="'+s.h+'"><select id="pjb"><option value="free">🧑‍💻 فريلانس</option><option value="remote"'+(ok?'':' disabled')+'>🏠 عن بعد'+(ok?'':' (مستوى 5)')+'</option></select><select id="pm"><option value="learn">📚 تعلم</option><option value="work">💼 عمل على مشروع</option></select><div id="pr"></div><div class="row"><button id="pcl" class="br">إغلاق</button></div>';
+ $('pjb').value=s.job;$('pm').value=s.mode;$('ph').oninput=$('pm').onchange=$('pjb').onchange=proj;$('pcl').onclick=()=>$('ov').hidden=true;$('ov').hidden=false;proj()}
+function openExp(){
+ $('bx').innerHTML='<h2>🧾 المصاريف اليومية</h2><p style="margin:0 0 6px">📡 الإنترنت (ثابت): <b>'+BASE+'$</b></p><div id="xl"></div><p>الإجمالي: <b id="xt"></b></p><small>كل مصروف هنا للبرمجة فقط: الجهاز يرفع كفاءتك، والأدوات ترفع دخلك (المشاريع والراتب)، والاشتراكات تسرّع تعلمك.</small><br><small>✏️ المخصص: اكتب أي مبلغ يومي (حتى 0$)، ويُحسب تأثيره بأقرب مستوى سعره يساويه أو يقل عنه.</small><div class="row"><button id="xc" class="bg">تم</button></div>';
+ $('xl').innerHTML=EXP.map(e=>'<label style="display:block;margin:6px 0">'+e.n+'<select data-k="'+e.k+'">'+e.o.map((o,i)=>'<option value="'+i+'"'+(s.sel[e.k]===i?' selected':'')+'>'+o[0]+' — '+o[1]+'$'+(i?' (+'+Math.round((FX[e.k][i]-1)*100)+'%)':'')+'</option>').join('')+'<option value="c"'+(s.sel[e.k]==='c'?' selected':'')+'>✏️ مخصص</option></select><input type="number" min="0" max="500" step="0.5" data-c="'+e.k+'" value="'+(s.cus[e.k]||0)+'" aria-label="مبلغ يومي مخصص" style="'+(s.sel[e.k]==='c'?'':'display:none;')+'margin-top:4px"></label>').join('');
+ const up=()=>{s.last.ex=dailyEx(s);$('xt').innerHTML=money(s.last.ex)+' / يوم';render();save()};
+ $('xl').onchange=e=>{const t=e.target;if(t.dataset.c){s.cus[t.dataset.c]=clamp(+t.value||0,0,500)}else{const k=t.dataset.k;s.sel[k]=t.value=='c'?'c':+t.value;t.parentNode.querySelector('input').style.display=t.value=='c'?'':'none'}up()};
+ $('xc').onclick=()=>$('ov').hidden=true;$('xt').innerHTML=money(dailyEx(s))+' / يوم';$('ov').hidden=false}
+function openSet(){
+ $('bx').innerHTML='<h2>⚙️ الإعدادات</h2><p>الإصدار <b>v'+VER+'</b> (نسخة شخصية)</p><button class="bg" id="sv" style="width:100%">💾 حفظ الآن</button><h2 style="margin-top:14px">نسخ احتياطي</h2><textarea id="ex" readonly rows="3"></textarea><div class="row"><button id="cp" class="bb">نسخ الكود</button></div><h2 style="margin-top:14px">تحميل تقدم محفوظ</h2><textarea id="im" rows="3" placeholder="الصق كود الحفظ هنا"></textarea><div class="row"><button id="ld" class="bg">تحميل</button></div><p id="sm"></p><div class="row"><button id="sc" class="br">إغلاق</button></div>';
+ $('ex').value=JSON.stringify(s);
+ $('sv').onclick=()=>{save();$('ex').value=JSON.stringify(s);$('sm').textContent='تم الحفظ ✅'};
+ $('cp').onclick=()=>{$('ex').select();try{navigator.clipboard.writeText($('ex').value);$('sm').textContent='تم النسخ ✅'}catch(e){$('sm').textContent='حدد النص وانسخه يدوياً'}};
+ $('ld').onclick=()=>{try{const o=JSON.parse($('im').value);if(!o.pts||!o.t)throw 0;s=norm(o);s.pe=null;s.rem=0;save();render();$('ov').hidden=true}catch(e){$('sm').textContent='⚠️ الكود غير صالح'}};
+ $('sc').onclick=()=>$('ov').hidden=true;$('ov').hidden=false}
+$('vr2').textContent='v'+VER;
+function show(g){$('setup').hidden=g;$('game').hidden=!g;if(g)render()}
+$('sd').value=new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
+$('go').onclick=()=>{const v=Date.parse($('sd').value);s=fresh(isNaN(v)?Date.now():v);save();show(1)};
+$('nw').onclick=()=>{if(busy||!confirm('سيُحذف تقدمك الحالي نهائياً. متأكد؟'))return;try{localStorage.removeItem(K)}catch(e){}s=null;show(0)};
+$('hr').oninput=e=>{s.h=+e.target.value;render();save()};
+$('md').onchange=e=>{s.mode=e.target.value;render();save()};
+$('pj').onclick=()=>{if(!busy)openProj()};
+$('xb').onclick=()=>{if(!busy)openExp()};
+$('st').onclick=()=>{if(!busy)openSet()};
+$('ov').onclick=e=>{if(e.target.id=='ov'&&!busy)$('ov').hidden=true};
+document.addEventListener('keydown',e=>{if(e.key=='Escape'&&!busy)$('ov').hidden=true});
+$('pjc').onclick=e=>{if(e.target.id=='pa'){s.pj=null;addLog('🚫 تخليت عن المشروع');render();save()}};
+document.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>adv(+b.dataset.d));
+$('trk').onclick=e=>{const b=e.target.closest('[data-t]');if(b){s.trk=b.dataset.t;render();save()}};
+$('jobs').onclick=e=>{const b=e.target.closest('[data-j]');if(!b||b.disabled||busy)return;const j=b.dataset.j;if(j==s.job)return;s.job=j;
+ if(j=='remote'){s.mode='learn';if(s.pj){s.pj=null;addLog('🚫 توقف مشروعك بسبب انتقالك للوظيفة عن بعد')}addLog('🏠 بدأت وظيفة عن بعد براتب ثابت')}else addLog('🧑‍💻 عدت للعمل الحر');
+ render();save()};
+const sv=load();if(sv&&sv.pts){s=norm(sv);show(1);if(s.pe)showEv(s.pe)}
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+  }
+</script>
+</body>
+</html>
